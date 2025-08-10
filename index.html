@@ -1,0 +1,1618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SpineVidya Discharge Summary Generator</title>
+    <style>
+        /* General Body and Layout Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            font-weight: 300;
+        }
+        
+        .content {
+            display: flex;
+            flex-direction: column; /* Stack vertically on small screens */
+        }
+
+        @media (min-width: 1024px) {
+            .content {
+                flex-direction: row; /* Side-by-side on larger screens */
+                min-height: 80vh;
+            }
+        }
+        
+        .form-section, .output-section {
+            padding: 30px;
+            overflow-y: auto;
+            max-height: 85vh;
+        }
+
+        .form-section {
+            flex: 1;
+            background: #fafafa;
+            border-right: 1px solid #e9ecef;
+        }
+        
+        .output-section {
+            flex: 1;
+            background: white;
+        }
+
+        /* Form Element Styles */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+        }
+        
+        /* Section and Button Styles */
+        .section-title {
+            background: #3498db;
+            color: white;
+            padding: 15px;
+            margin: 20px -30px;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .collapsible-section {
+            background: #e74c3c;
+            color: white;
+            padding: 12px 15px;
+            margin: 20px -30px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            border-radius: 4px;
+        }
+        
+        .collapsible-section:hover {
+            background: #c0392b;
+        }
+        
+        .collapsible-section.active {
+            background: #27ae60;
+        }
+        
+        .collapsible-content {
+            display: none;
+            padding: 20px 0;
+            border-left: 3px solid #e74c3c;
+            padding-left: 20px;
+            margin: 0 -30px 20px -27px;
+            background: #fdfdfd;
+        }
+        
+        .collapsible-content.active {
+            display: block;
+            border-left-color: #27ae60;
+        }
+        
+        .generate-btn {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        
+        .generate-btn:hover {
+            background: #229954;
+            transform: translateY(-2px);
+        }
+        
+        .copy-btn, .reset-exam-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 10px;
+            margin-right: 10px;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+        
+        .copy-btn:hover, .reset-exam-btn:hover {
+            background: #c0392b;
+        }
+        
+        .reset-exam-btn {
+            background: #f39c12;
+        }
+        
+        .reset-exam-btn:hover {
+            background: #d68910;
+        }
+
+        /* Output and Grid Styles */
+        .output {
+            background: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            min-height: 400px;
+        }
+        
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .col {
+            flex: 1;
+            min-width: 250px;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .checkbox-group label {
+            display: flex;
+            align-items: center;
+            font-weight: normal;
+            margin-bottom: 0;
+        }
+        
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+            margin-right: 8px;
+        }
+        
+        .exam-grid {
+            display: grid;
+            grid-template-columns: 1fr; /* Single column for smaller screens */
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        @media (min-width: 768px) {
+            .exam-grid {
+                grid-template-columns: 1fr 1fr; /* Two columns for medium screens */
+            }
+        }
+        
+        .exam-category {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #dee2e6;
+        }
+        
+        .exam-category h4 {
+            color: #495057;
+            margin-bottom: 10px;
+            font-size: 14px;
+            border-bottom: 1px solid #dee2e6;
+            padding-bottom: 5px;
+        }
+        
+        .power-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .power-label {
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .power-input {
+            padding: 6px 8px !important;
+            font-size: 12px !important;
+            text-align: center;
+        }
+
+        .auto-update-indicator {
+            color: #6c757d;
+            font-size: 11px;
+            font-style: italic;
+            margin-top: 3px;
+        }
+
+        /* Custom Notification Style */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #27ae60;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-20px);
+            transition: opacity 0.3s, visibility 0.3s, transform 0.3s;
+        }
+
+        .notification.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>SpineVidya Discharge Summary</h1>
+        </div>
+        
+        <div class="content">
+            <div class="form-section">
+                <div class="section-title">Patient Information</div>
+                
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="patientName">Patient Name:</label>
+                            <input type="text" id="patientName" placeholder="Enter patient name">
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="age">Age:</label>
+                            <input type="number" id="age" placeholder="Age in years">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="gender">Gender:</label>
+                            <select id="gender">
+                                <option value="">Select Gender</option>
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="duration">Duration of Symptoms:</label>
+                            <input type="text" id="duration" placeholder="e.g., 2 months">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="painSide">Pain Side:</label>
+                            <select id="painSide">
+                                <option value="">Select Side</option>
+                                <option value="right">Right</option>
+                                <option value="left">Left</option>
+                                <option value="bilateral">Bilateral</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="surgicalLevels">Surgical Levels:</label>
+                            <input type="text" id="surgicalLevels" placeholder="e.g., L4-L5, C5-C6" oninput="updateTendernessLocation()">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="section-title">Clinical Details</div>
+                
+                <div class="form-group">
+                    <label for="diagnosisCategory">Diagnosis Category:</label>
+                    <select id="diagnosisCategory" onchange="updateDiagnosisOptions()">
+                        <option value="">Select Category</option>
+                        <option value="lumbar">Lumbar Spine Disorders</option>
+                        <option value="thoracic">Thoracic/Thoracolumbar Spine</option>
+                        <option value="cervical">Cervical Spine Disorders</option>
+                        <option value="cervicothoracic">Cervicothoracic Junction</option>
+                        <option value="occipitocervical">Occipitocervical Region</option>
+                        <option value="atlantoaxial">Atlantoaxial Complex</option>
+                        <option value="scoliosis">Scoliosis & Spinal Deformities</option>
+                        <option value="fractures">Spinal Fractures</option>
+                        <option value="vertebral">Vertebral Body Procedures</option>
+                        <option value="peripheral">Peripheral Nerve Disorders</option>
+                        <option value="other">Other Conditions</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="specificDiagnosis">Specific Diagnosis:</label>
+                    <select id="specificDiagnosis">
+                        <option value="">Select diagnosis category first</option>
+                    </select>
+                </div>
+
+                <div class="form-group" id="spondyGradeGroup" style="display: none;">
+                    <label for="spondyGrade">Grade of Spondylolisthesis:</label>
+                    <select id="spondyGrade">
+                        <option value="I">Grade I</option>
+                        <option value="II">Grade II</option>
+                        <option value="III">Grade III</option>
+                        <option value="IV">Grade IV</option>
+                        <option value="V (Spondyloptosis)">Grade V (Spondyloptosis)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="procedurePerformed">Procedure Performed:</label>
+                    <select id="procedurePerformed">
+                        <option value="">Select procedure</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="painOnset">Pain Onset:</label>
+                    <select id="painOnset">
+                        <option value="">Select Onset</option>
+                        <option value="insidious">Insidious</option>
+                        <option value="sudden">Sudden</option>
+                        <option value="gradual">Gradual</option>
+                    </select>
+                </div>
+                
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="aggravatingFactors">Aggravating Factors:</label>
+                            <input type="text" id="aggravatingFactors" placeholder="e.g., standing, walking, bending">
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="relievingFactors">Relieving Factors:</label>
+                            <input type="text" id="relievingFactors" placeholder="e.g., rest, medications, sitting">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="surgeryDate">Surgery Date:</label>
+                    <input type="date" id="surgeryDate">
+                </div>
+
+                <div class="form-group">
+                    <label for="mobilizationDate">Mobilization Date (Optional):</label>
+                    <input type="date" id="mobilizationDate">
+                </div>
+
+                <div class="form-group">
+                    <label for="followupDate">Follow-up Date:</label>
+                    <input type="date" id="followupDate">
+                </div>
+                
+                <!-- Collapsible Physical Examination Section -->
+                <div class="collapsible-section" onclick="toggleSection('physicalExam')">
+                    🔍 Physical Examination Settings (Click to Expand)
+                </div>
+                <div class="collapsible-content" id="physicalExamContent">
+                    <div style="padding: 0 30px;">
+                        <button class="reset-exam-btn" onclick="resetToNormalExam()">Reset to Normal Values</button>
+                        
+                        <div class="exam-grid">
+                            <div class="exam-category">
+                                <h4>GAIT & GENERAL</h4>
+                                <div class="form-group">
+                                    <label for="gaitFindings">Gait:</label>
+                                    <select id="gaitFindings">
+                                        <option value="Normal">Normal</option>
+                                        <option value="Antalgic">Antalgic</option>
+                                        <option value="Unsteady">Unsteady</option>
+                                        <option value="Spastic">Spastic</option>
+                                        <option value="Unable to bear weight">Unable to bear weight</option>
+                                        <option value="Trendelenburg">Trendelenburg</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="spinePosition">Spine Position:</label>
+                                    <input type="text" id="spinePosition" value="Neutral">
+                                </div>
+                                <div class="form-group">
+                                    <label for="deformitiesScars">Deformities/Scars:</label>
+                                    <input type="text" id="deformitiesScars" value="No list/scars/sinuses">
+                                </div>
+                            </div>
+                            
+                            <div class="exam-category">
+                                <h4>PALPATION</h4>
+                                <div class="form-group">
+                                    <label for="spinalTenderness">Spinal Tenderness:</label>
+                                    <input type="text" id="spinalTenderness" value="Present over surgical region">
+                                    <div class="auto-update-indicator">Auto-updates based on surgical levels entered above</div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="muscleSpasm">Muscle Spasm:</label>
+                                    <input type="text" id="muscleSpasm" value="Paraspinal muscle spasm present">
+                                </div>
+                                <div class="form-group">
+                                    <label for="rangeOfMotion">Range of Motion:</label>
+                                    <input type="text" id="rangeOfMotion" value="Restricted due to pain">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="exam-category">
+                            <h4>NEUROLOGICAL EXAMINATION</h4>
+                            
+                            <div class="row">
+                                <div class="col">
+                                    <div class="form-group">
+                                        <label for="bulk">Bulk:</label>
+                                        <input type="text" id="bulk" value="Normal">
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="form-group">
+                                        <label for="tone">Tone:</label>
+                                        <input type="text" id="tone" value="Normal">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <h5 style="margin: 15px 0 10px 0; color: #495057;">Motor Power Assessment:</h5>
+                            
+                            <!-- Upper Limb Power -->
+                            <div style="margin-bottom: 20px;">
+                                <h6 style="color: #6c757d; margin-bottom: 10px;">UPPER LIMB</h6>
+                                <div class="power-grid" style="font-weight: bold; background: #e9ecef; padding: 8px; border-radius: 3px;">
+                                    <div class="power-label">Movement</div>
+                                    <div class="power-label">Right</div>
+                                    <div class="power-label">Left</div>
+                                </div>
+                                
+                                <div class="power-grid">
+                                    <div class="power-label">Shoulder Abduction</div>
+                                    <input type="number" min="0" max="5" class="power-input" id="shoulderAbdRight" value="5">
+                                    <input type="number" min="0" max="5" class="power-input" id="shoulderAbdLeft" value="5">
+                                </div>
+                                <div class="power-grid">
+                                    <div class="power-label">Shoulder Adduction</div>
+                                    <input type="number" min="0" max="5" class="power-input" id="shoulderAddRight" value="5">
+                                    <input type="number" min="0" max="5" class="power-input" id="shoulderAddLeft" value="5">
+                                </div>
+                                <div class="power-grid">
+                                    <div class="power-label">Elbow Flexion</div>
+                                    <input type="number" min="0" max="5" class="power-input" id="elbowFlexRight" value="5">
+                                    <input type="number" min="0" max="5" class="power-input" id="elbowFlexLeft" value="5">
+                                </div>
+                                <div class="power-grid">
+                                    <div class="power-label">Elbow Extension</div>
+                                    <input type="number" min="0" max="5" class="power-input" id="elbowExtRight" value="5">
+                                    <input type="number" min="0" max="5" class="power-input" id="elbowExtLeft" value="5">
+                                </div>
+                                <div class="power-grid">
+                                    <div class="power-label">Wrist Flexion</div>
+                                    <input type="number" min="0" max="5" class="power-input" id="wristFlexRight" value="5">
+                                    <input type="number" min="0" max="5" class="power-input" id="wristFlexLeft" value="5">
+                                </div>
+                                <div class="power-grid">
+                                    <div class="power-label">Wrist Extension</div>
+                                    <input type="number" min="0" max="5" class="power-input" id="wristExtRight" value="5">
+                                    <input type="number" min="0" max="5" class="power-input" id="wristExtLeft" value="5">
+                                </div>
+                                <div class="power-grid">
+                                    <div class="power-label">Finger Grip</div>
+                                    <input type="text" class="power-input" id="fingerGripRight" value="Good">
+                                    <input type="text" class="power-input" id="fingerGripLeft" value="Good">
+                                </div>
+                                <div class="power-grid">
+                                    <div class="power-label">Finger Abduction</div>
+                                    <input type="number" min="0" max="5" class="power-input" id="fingerAbdRight" value="5">
+                                    <input type="number" min="0" max="5" class="power-input" id="fingerAbdLeft" value="5">
+                                </div>
+                            </div>
+                            
+                            <!-- Lower Limb Power -->
+                            <div style="margin-bottom: 20px;">
+                                <h6 style="color: #6c757d; margin-bottom: 10px;">LOWER LIMB</h6>
+                                <div class="power-grid" style="font-weight: bold; background: #e9ecef; padding: 8px; border-radius: 3px;">
+                                    <div class="power-label">Movement</div>
+                                    <div class="power-label">Right</div>
+                                    <div class="power-label">Left</div>
+                                </div>
+                                
+                                <div class="power-grid">
+                                    <div class="power-label">Hip Flexion</div>
+                                    <input type="number" min="0" max="5" class="power-input" id="hipFlexRight" value="5">
+                                    <input type="number" min="0" max="5" class="power-input" id="hipFlexLeft" value="5">
+                                </div>
+                                <div class="power-grid">
+                                    <div class="power-label">Hip Extension</div>
+                                    <input type="number" min="0" max="5" class="power-input" id="hipExtRight" value="5">
+                                    <input type="number" min="0" max="5" class="power-input" id="hipExtLeft" value="5">
+                                </div>
+                                <div class="power-grid">
+                                    <div class="power-label">Hip Abduction</div>
+                                    <input type="number" min="0" max="5" class="power-input" id="hipAbdRight" value="5">
+                                    <input type="number" min="0" max="5" class="power-input" id="hipAbdLeft" value="5">
+                                </div>
+                                <div class="power-grid">
+                                    <div class="power-label">Hip Adduction</div>
+                                    <input type="number" min="0" max="5" class="power-input" id="hipAddRight" value="5">
+                                    <input type="number" min="0" max="5" class="power-input" id="hipAddLeft" value="5">
+                                </div>
+                                <div class="power-grid">
+                                    <div class="power-label">Knee Flexion</div>
+                                    <input type="number" min="0" max="5" class="power-input" id="kneeFlexRight" value="5">
+                                    <input type="number" min="0" max="5" class="power-input" id="kneeFlexLeft" value="5">
+                                </div>
+                                <div class="power-grid">
+                                    <div class="power-label">Knee Extension</div>
+                                    <input type="number" min="0" max="5" class="power-input" id="kneeExtRight" value="5">
+                                    <input type="number" min="0" max="5" class="power-input" id="kneeExtLeft" value="5">
+                                </div>
+                                <div class="power-grid">
+                                    <div class="power-label">Ankle Dorsiflexion</div>
+                                    <input type="number" min="0" max="5" class="power-input" id="ankleDFRight" value="5">
+                                    <input type="number" min="0" max="5" class="power-input" id="ankleDFLeft" value="5">
+                                </div>
+                                <div class="power-grid">
+                                    <div class="power-label">Ankle Plantarflexion</div>
+                                    <input type="number" min="0" max="5" class="power-input" id="anklePFRight" value="5">
+                                    <input type="number" min="0" max="5" class="power-input" id="anklePFLeft" value="5">
+                                </div>
+                                <div class="power-grid">
+                                    <div class="power-label">EHL, EDL</div>
+                                    <input type="number" min="0" max="5" class="power-input" id="ehlEDLRight" value="5">
+                                    <input type="number" min="0" max="5" class="power-input" id="ehlEDLLeft" value="5">
+                                </div>
+                                <div class="power-grid">
+                                    <div class="power-label">FHL, FDL</div>
+                                    <input type="number" min="0" max="5" class="power-input" id="fhlFDLRight" value="5">
+                                    <input type="number" min="0" max="5" class="power-input" id="fhlFDLLeft" value="5">
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col">
+                                    <div class="form-group">
+                                        <label for="sensations">Sensations:</label>
+                                        <input type="text" id="sensations" value="Normal">
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="form-group">
+                                        <label for="reflexes">Reflexes:</label>
+                                        <input type="text" id="reflexes" value="Normal">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col">
+                                    <div class="form-group">
+                                        <label for="babinski">Babinski's:</label>
+                                        <select id="babinski">
+                                            <option value="Flexor">Flexor</option>
+                                            <option value="Extensor">Extensor</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="form-group">
+                                        <label for="additionalFindings">Additional Findings:</label>
+                                        <input type="text" id="additionalFindings" placeholder="e.g., Saddle anesthesia, SLR findings">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="vascularStatus">Vascular Status:</label>
+                                <input type="text" id="vascularStatus" value="Bilateral dorsalis pedis and posterior tibial arteries palpable">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="section-title">Medications</div>
+                
+                <div class="form-group">
+                    <label>Pain Medications (Select all that apply):</label>
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" id="pyrigesic"> Pyrigesic 1000mg</label>
+                        <label><input type="checkbox" id="tydol"> Tydol 50mg</label>
+                        <label><input type="checkbox" id="imolPlus" checked> Imol Plus</label>
+                        <label><input type="checkbox" id="ketorolacInjection"> Ketorolac Injection (30mg)</label>
+                        <label><input type="checkbox" id="tramadolInjection"> Tramadol Injection (50mg)</label>
+                        <label><input type="checkbox" id="lofecam"> Lofecam 8mg</label>
+                        <label><input type="checkbox" id="nucoxia"> Nucoxia 90/120mg</label>
+                        <label><input type="checkbox" id="hifenac"> Hifenac 100mg</label>
+                        <label><input type="checkbox" id="naprosyn"> Naprosyn 250/500mg</label>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Antibiotic Options:</label>
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" id="ceftumOral" checked> Tab. Ceftum 500mg (Oral)</label>
+                        <label><input type="checkbox" id="magnexIV"> Inj. Magnex Forte 3gm (IV)</label>
+                        <label><input type="checkbox" id="customAntibiotic"> Custom Antibiotic</label>
+                    </div>
+                </div>
+                
+                <div class="form-group" id="customAntibioticField" style="display: none;">
+                    <label for="customAntibioticText">Custom Antibiotic Details:</label>
+                    <input type="text" id="customAntibioticText" placeholder="e.g., Tab. Amoxicillin 500mg 1-0-1 x 7 days">
+                </div>
+                
+                <div class="form-group">
+                    <label>Additional Medications:</label>
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" id="supplements"> Nutritional Supplements</label>
+                        <label><input type="checkbox" id="dvtProphylaxis"> DVT Prophylaxis</label>
+                        <label><input type="checkbox" id="osteoporosisMeds"> Osteoporosis Treatment</label>
+                        <label><input type="checkbox" id="muscleRelaxants"> Muscle Relaxants</label>
+                        <label><input type="checkbox" id="patches"> Pain Relief Patches</label>
+                        <label><input type="checkbox" id="cervicalNausea"> Anti-nausea Medication</label>
+                        <label><input type="checkbox" id="steroids"> Steroid Course</label>
+                    </div>
+                </div>
+                
+                <div class="section-title">Care Instructions & Special Protocols</div>
+                
+                <div class="form-group">
+                    <label>Care Instructions (Select all that apply):</label>
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" id="lsCorset"> Spinal Brace/Support</label>
+                        <label><input type="checkbox" id="carpalTunnelCare"> Hand Elevation Care</label>
+                        <label><input type="checkbox" id="physiotherapy" checked> Home Physiotherapy</label>
+                        <label><input type="checkbox" id="drainCare" checked> Drain Care Instructions</label>
+                        <label><input type="checkbox" id="neuroDeficitCare"> Neurological Deficit Care</label>
+                    </div>
+                </div>
+                
+                <button class="generate-btn" onclick="generateSummary()">Generate Discharge Summary</button>
+            </div>
+            
+            <div class="output-section">
+                <button class="copy-btn" onclick="copySummary()">Copy to Clipboard</button>
+                <div class="output" id="output">
+                    Click "Generate Discharge Summary" to create the summary...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Notification Element -->
+    <div id="notification" class="notification"></div>
+
+    <script>
+        // --- DATA OBJECTS FOR DYNAMIC DROPDOWNS --- //
+        const diagnosisOptions = {
+            lumbar: {
+                "Lumbar Spondylolisthesis": "{levels} Grade {grade} spondylolisthesis with lumbar canal stenosis, neurogenic claudication and severe functional disability",
+                "Lumbar Degenerative Disc Disease": "{levels} degenerative disc disease with lumbar canal stenosis, neurogenic claudication and severe functional disability",
+                "Lumbar Disc Herniation": "{levels} disc prolapse with {side} foraminal stenosis, {side} lower limb radiculopathy and severe functional disability",
+                "Lumbar Spinal Stenosis": "{levels} lumbar spinal stenosis with neurogenic claudication and severe functional disability",
+                "Lumbar Spondylosis": "{levels} lumbar spondylosis with canal stenosis and severe functional disability",
+                "Spondylolysis": "{levels} spondylolysis with severe functional disability"
+            },
+            thoracic: {
+                "Thoracic Disc Herniation": "{levels} thoracic disc prolapse with myelopathy and severe functional disability",
+                "Thoracic Spinal Stenosis": "{levels} thoracic spinal stenosis with myelopathy and severe functional disability",
+                "Thoracic Spondylosis": "{levels} thoracic spondylosis with cord compression and severe functional disability",
+                "Thoracolumbar Fracture": "{levels} thoracolumbar fracture with neurological compromise",
+                "Thoracic Myelopathy": "{levels} thoracic myelopathy with severe functional disability",
+                "Scheuermann's Disease": "{levels} Scheuermann's kyphosis with severe functional disability",
+                "Thoracic Kyphoscoliosis": "{levels} thoracic kyphoscoliosis with severe functional disability"
+            },
+            cervical: {
+                "Cervical Disc Herniation": "{levels} cervical disc prolapse {side} upper limb radicular pain and severe functional disability",
+                "Cervical Myelopathy": "{levels} cervical disc prolapse, with cervical myelopathy and severe functional disability",
+                "Cervical Spondylotic Myelopathy": "{levels} Cervical spondylotic myelopathy with severe functional disability",
+                "Cervical OPLL": "{levels} OPLL with cervical spondylotic myelopathy and severe functional disability",
+                "Cervical Radiculopathy": "{levels} cervical radiculopathy with {side} upper limb pain and severe functional disability"
+            },
+            cervicothoracic: {
+                "Cervicothoracic Kyphosis": "{levels} cervicothoracic kyphosis with severe functional disability",
+                "C7-T1 Disc Disease": "{levels} disc prolapse with radiculomyelopathy and severe functional disability",
+                "Cervicothoracic Junction Stenosis": "{levels} cervicothoracic junction stenosis with myelopathy and severe functional disability",
+                "Cervicothoracic Instability": "{levels} cervicothoracic instability with severe functional disability"
+            },
+            occipitocervical: {
+                "Occipitocervical Instability": "{levels} occipitocervical instability with severe functional disability",
+                "Basilar Invagination": "{levels} basilar invagination with brainstem compression and severe functional disability",
+                "Rheumatoid Atlantoaxial Subluxation": "{levels} rheumatoid atlantoaxial subluxation with myelopathy and severe functional disability",
+                "Chiari with Instability": "{levels} Chiari malformation with occipitocervical instability and severe functional disability",
+                "Occipital Condyle Fracture": "{levels} occipital condyle fracture with craniocervical instability"
+            },
+            atlantoaxial: {
+                "Atlantoaxial Subluxation": "{levels} atlantoaxial subluxation with myelopathy and severe functional disability",
+                "Odontoid Fracture": "{levels} odontoid fracture with atlantoaxial instability",
+                "C1-C2 Instability": "{levels} instability with severe functional disability",
+                "Os Odontoideum": "{levels} os odontoideum with atlantoaxial instability and myelopathy",
+                "Atlantoaxial Rotatory Fixation": "{levels} atlantoaxial rotatory fixation with severe functional disability"
+            },
+            scoliosis: {
+                "Posterior Scoliosis Correction": "Adolescent Idiopathic scoliosis {levels} Lenke Type with severe functional disability",
+                "Congenital Scoliosis": "{levels} congenital scoliosis with severe functional disability",
+                "Hemivertebrae": "{levels} hemivertebrae with progressive spinal deformity",
+                "Adult Degenerative Scoliosis": "{levels} adult degenerative scoliosis with severe functional disability"
+            },
+            fractures: {
+                "Vertebral Compression Fracture": "{levels} anterior wedge compression fracture with severe functional disability",
+                "Pathological Fracture": "{levels} pathological compression fracture with severe functional disability",
+                "Chance Fracture": "{levels} flexion-distraction injury (Chance fracture) with disruption of the posterior ligamentous complex and severe spinal instability",
+                "Osteoporotic Fracture": "{levels} osteoporotic compression fracture with severe functional disability",
+                "Burst Fracture": "{levels} burst fracture with neurological compromise",
+                "L1 Chance Fracture": "L1 flexion-distraction injury (Chance fracture) with disruption of the posterior ligamentous complex and severe spinal instability"
+            },
+            vertebral: {
+                "Vertebral Metastasis": "{levels} pathological compression fracture requiring cement augmentation",
+                "Osteoporotic Collapse": "{levels} osteoporotic compression fracture requiring kyphoplasty",
+                "Vertebral Hemangioma": "{levels} vertebral hemangioma requiring vertebroplasty",
+                "Multiple Myeloma": "{levels} vertebral metastasis requiring biopsy and cement augmentation"
+            },
+            peripheral: {
+                "Bilateral Carpal Tunnel Syndrome": "Bilateral Carpal tunnel syndrome with severe functional disability",
+                "Unilateral Carpal Tunnel Syndrome": "{side} Carpal tunnel syndrome with severe functional disability",
+                "Cubital Tunnel Syndrome": "{side} Cubital tunnel syndrome with ulnar nerve compression"
+            },
+            other: {
+                "Coccydynia": "Coccydynia with severe functional disability requiring coccygectomy",
+                "Spinal Infection": "{levels} spinal infection with severe functional disability",
+                "Spinal Tumor": "{levels} spinal tumor with neurological compromise"
+            }
+        };
+
+        const procedureOptions = {
+            lumbar: {
+                "Microdiscectomy": "Microscopic discectomy using unilateral approach and bilateral decompression",
+                "TLIF": "circumferential decompression and global instrumented fusion (TLIF)",
+                "PLIF": "circumferential decompression and global instrumented fusion (PLIF)",
+                "Laminectomy": "Lumbar laminectomy with decompression",
+                "Circumferential Fusion": "circumferential decompression and global instrumented fusion",
+                "Percutaneous Fixation": "Percutaneous posterior stabilization",
+                "Buck's Fusion": "Buck's fusion for spondylolysis"
+            },
+            thoracic: {
+                "Thoracic Laminectomy": "Thoracic laminectomy with cord decompression",
+                "Thoracic Fusion": "circumferential decompression and global instrumented fusion",
+                "Thoracolumbar Fusion": "circumferential decompression and global instrumented fusion",
+                "Thoracic Discectomy": "Thoracic discectomy via costotransversectomy approach",
+                "Costotransversectomy": "Costotransversectomy with disc removal",
+                "Thoracic Decompression": "Thoracic spinal cord decompression",
+                "Thoracic Kyphosis Correction": "circumferential decompression and global instrumented fusion with kyphosis correction",
+                "Multi-level Thoracic Fusion": "circumferential decompression and global instrumented fusion"
+            },
+            cervical: {
+                "ACDF": "Anterior Cervical Discectomy and Fusion (ACDF)",
+                "ACCF": "Anterior Cervical Corpectomy and Fusion (ACCF)",
+                "Artificial Disc Replacement": "Artificial Disc Replacement (ADR)",
+                "Posterior Cervical Fusion": "circumferential decompression and global instrumented fusion",
+                "Cervical Laminectomy": "Posterior limited laminectomy",
+                "Cervical Laminoplasty": "Cervical laminoplasty for myelopathy"
+            },
+            cervicothoracic: {
+                "Cervicothoracic Fusion": "circumferential decompression and global instrumented fusion",
+                "C7-T1 ACDF": "C7-T1 anterior cervical discectomy and fusion",
+                "Combined Approach": "circumferential decompression and global instrumented fusion",
+                "Cervicothoracic Decompression": "circumferential decompression and global instrumented fusion"
+            },
+            occipitocervical: {
+                "Occipitocervical Fusion": "circumferential decompression and global instrumented fusion (occipitocervical)",
+                "Occiput to C2 Fusion": "circumferential decompression and global instrumented fusion (occiput to C2)",
+                "Occipitocervical Stabilization": "circumferential decompression and global instrumented fusion",
+                "Foramen Magnum Decompression": "Foramen magnum decompression with circumferential decompression and global instrumented fusion",
+                "Chiari Decompression": "Suboccipital craniectomy with circumferential decompression and global instrumented fusion"
+            },
+            atlantoaxial: {
+                "Atlantoaxial Fusion": "circumferential decompression and global instrumented fusion (atlantoaxial)",
+                "C1-C2 Fusion": "circumferential decompression and global instrumented fusion (C1-C2)",
+                "Transarticular Fixation": "C1-C2 transarticular screw fixation",
+                "C1-C2 Stabilization": "circumferential decompression and global instrumented fusion",
+                "Odontoid Screw": "Anterior odontoid screw fixation"
+            },
+            scoliosis: {
+                "Posterior Scoliosis Correction": "circumferential decompression and global instrumented fusion with scoliosis correction",
+                "Anterior-Posterior Correction": "circumferential decompression and global instrumented fusion (combined approach)",
+                "Growing Rod Surgery": "Growing rod insertion for progressive scoliosis"
+            },
+            fractures: {
+                "Percutaneous Fixation": "Percutaneous posterior stabilization",
+                "Open Reduction Internal Fixation": "Open reduction and internal fixation",
+                "Corpectomy and Fusion": "Corpectomy with circumferential decompression and global instrumented fusion"
+            },
+            vertebral: {
+                "Vertebroplasty": "Percutaneous vertebroplasty",
+                "Kyphoplasty": "Percutaneous vertebral body biopsy and balloon kyphoplasty",
+                "Vertebral Biopsy": "Percutaneous vertebral body biopsy",
+                "Cement Augmentation": "Vertebral body cement augmentation",
+                "Kyphoplasty with Biopsy": "Percutaneous vertebral body biopsy, posterior vertebral body cement augmentation, indirect anterior decompression using balloon kyphoplasty"
+            },
+            peripheral: {
+                "Bilateral CTR": "Bilateral carpal tunnel release",
+                "Unilateral CTR": "Unilateral carpal tunnel release",
+                "Cubital Tunnel Release": "Cubital tunnel release with ulnar nerve decompression"
+            },
+            other: {
+                "Coccydynia": "Coccygectomy",
+                "Spinal Debridement": "Spinal debridement and fusion",
+                "Tumor Resection": "Spinal tumor resection and stabilization"
+            }
+        };
+
+        const operativeNoteTemplates = {
+            "Anterior Cervical Discectomy and Fusion (ACDF)": `
+### ANTERIOR CERVICAL DISCECTOMY AND FUSION (ACDF) AT {levels}
+
+Preparation:
+- Patient was positioned supine with bolsters behind the shoulders and neck in slight extension.
+- Betadine and chlorhexidine preparation of the anterior neck.
+- Sterile draping.
+
+Procedure:
+- A standard Smith-Robinson approach was used via a transverse incision on the {side} side of the neck.
+- The plane between the carotid sheath and trachea/esophagus was developed.
+- The {levels} disc space(s) were confirmed with fluoroscopy.
+- Complete discectomy was performed at each level, removing disc material and cartilaginous endplates.
+- The posterior longitudinal ligament was resected to ensure full decompression of the spinal cord.
+- Appropriately sized PEEK cages filled with bone graft were inserted into the disc spaces.
+- An anterior cervical plate was fixed across the {levels} vertebrae with screws.
+- Final positioning was confirmed with fluoroscopy.
+- Hemostasis was achieved and the wound was closed in layers{drain}.
+- Absorbable subcuticular sutures (monocryl) used for skin closure.
+
+Outcome:
+- Patient tolerated the procedure well and was moving all four limbs at the end of surgery.`,
+
+            "Microscopic discectomy using unilateral approach and bilateral decompression": `
+### MICROSCOPIC DISCECTOMY AT {levels}
+
+Preparation:
+- Patient positioned prone on a radiolucent table.
+- Betadine and chlorhexidine preparation of the lumbar spine.
+- Sterile draping.
+
+Procedure:
+- A midline incision was made over the {levels} interspace, confirmed with fluoroscopy.
+- A unilateral laminotomy and medial facetectomy were performed on the {side} side using a microscope.
+- The ligamentum flavum was resected to expose the dura and the traversing nerve root.
+- The nerve root was identified and gently retracted. The herniated disc fragment was identified and excised.
+- The neural foramen and lateral recess were probed to ensure adequate decompression of the nerve root.
+- Hemostasis was achieved, and the wound was closed in layers{drain}.
+- Absorbable subcuticular sutures (monocryl) used for skin closure.
+
+Outcome:
+- Patient tolerated the procedure well with satisfactory neurological status at surgery completion.`,
+
+            "circumferential decompression and global instrumented fusion (TLIF)": `
+### TRANSPHORAMINAL LUMBAR INTERBODY FUSION (TLIF) AT {levels}
+
+Preparation:
+- Patient positioned prone on a radiolucent table.
+- Betadine and chlorhexidine preparation of the lumbar spine.
+- Sterile draping.
+
+Procedure:
+- A midline incision was made over the {levels} spinous processes.
+- Subperiosteal dissection exposed the posterior elements.
+- Pedicle screws were placed at the indicated levels under fluoroscopic guidance.
+- A laminectomy and facetectomy on the {side} side at {levels} were performed.
+- A complete discectomy was performed through the transforaminal window.
+- The vertebral endplates were prepared. An interbody cage filled with bone graft was inserted into the disc space.
+- Rods were contoured and secured to the pedicle screws. Compression was applied to restore lordosis.
+- Additional bone graft was placed in the posterolateral gutters.
+- Hemostasis was achieved, and the wound was closed in layers{drain}.
+
+Outcome:
+- Patient tolerated the procedure well with satisfactory neurological status at surgery completion.`,
+
+            // A default/generic template for other procedures
+            "default": `
+### {procedure}
+
+Preparation:
+- Betadine and chlorhexidine preparation.
+- Patient positioned appropriately after anesthesia induction.
+- Sterile draping.
+
+Procedure:
+- Surgical approach as per standard technique for {levels}.
+- {procedure} performed successfully.
+- Adequate decompression achieved.
+- Instrumentation placed as indicated.
+- Hemostasis was achieved.
+- Surgical wound closed in layers{drain}.
+- Absorbable subcuticular sutures (monocryl) for skin closure.
+
+Outcome:
+- Patient tolerated surgery well with satisfactory neurological status at surgery completion.`
+        };
+
+        // --- UI AND EVENT HANDLER FUNCTIONS --- //
+
+        /**
+         * Shows a custom notification message on the screen.
+         * @param {string} message - The text to display in the notification.
+         * @param {string} type - 'success' or 'error' to control the color.
+         */
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.style.backgroundColor = type === 'success' ? '#27ae60' : '#e74c3c';
+            notification.classList.add('show');
+
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        /**
+         * Toggles the visibility of collapsible sections.
+         * @param {string} sectionId - The ID of the section to toggle.
+         */
+        function toggleSection(sectionId) {
+            const content = document.getElementById(sectionId + 'Content');
+            const header = content.previousElementSibling;
+            
+            content.classList.toggle('active');
+            header.classList.toggle('active');
+        }
+
+        /**
+         * Updates the diagnosis and procedure dropdowns based on the selected category.
+         */
+        function updateDiagnosisOptions() {
+            const category = document.getElementById('diagnosisCategory').value;
+            const specificSelect = document.getElementById('specificDiagnosis');
+            const procedureSelect = document.getElementById('procedurePerformed');
+            
+            specificSelect.innerHTML = '<option value="">Select specific diagnosis</option>';
+            procedureSelect.innerHTML = '<option value="">Select procedure</option>';
+            
+            if (category && diagnosisOptions[category]) {
+                Object.entries(diagnosisOptions[category]).forEach(([displayName, value]) => {
+                    const option = document.createElement('option');
+                    option.value = value;
+                    option.textContent = displayName;
+                    specificSelect.appendChild(option);
+                });
+            }
+
+            if (category && procedureOptions[category]) {
+                Object.entries(procedureOptions[category]).forEach(([displayName, value]) => {
+                    const option = document.createElement('option');
+                    option.value = value;
+                    option.textContent = displayName;
+                    procedureSelect.appendChild(option);
+                });
+            }
+        }
+        
+        /**
+         * Resets all physical examination fields to their default 'normal' values.
+         */
+        function resetToNormalExam() {
+            document.getElementById('gaitFindings').value = "Normal";
+            document.getElementById('spinePosition').value = "Neutral";
+            document.getElementById('deformitiesScars').value = "No list/scars/sinuses";
+            document.getElementById('muscleSpasm').value = "No muscle spasm";
+            document.getElementById('rangeOfMotion').value = "Full range of motion";
+            
+            document.getElementById('bulk').value = "Normal";
+            document.getElementById('tone').value = "Normal";
+            document.getElementById('sensations').value = "Normal";
+            document.getElementById('reflexes').value = "Normal";
+            document.getElementById('babinski').value = "Flexor";
+            document.getElementById('additionalFindings').value = "";
+            document.getElementById('vascularStatus').value = "Bilateral dorsalis pedis and posterior tibial arteries palpable";
+            
+            const powerFields = ['shoulderAbd', 'shoulderAdd', 'elbowFlex', 'elbowExt', 'wristFlex', 'wristExt', 'fingerAbd', 'hipFlex', 'hipExt', 'hipAbd', 'hipAdd', 'kneeFlex', 'kneeExt', 'ankleDF', 'anklePF', 'ehlEDL', 'fhlFDL'];
+            powerFields.forEach(field => {
+                document.getElementById(field + 'Right').value = "5";
+                document.getElementById(field + 'Left').value = "5";
+            });
+            document.getElementById('fingerGripRight').value = "Good";
+            document.getElementById('fingerGripLeft').value = "Good";
+            
+            updateTendernessLocation();
+            showNotification('Physical examination values reset to normal!');
+        }
+
+        /**
+         * Automatically updates the spinal tenderness location based on surgical levels.
+         */
+        function updateTendernessLocation() {
+            const surgicalLevels = document.getElementById('surgicalLevels').value;
+            const tendernessLocation = getTendernessRegion(surgicalLevels);
+            const tendernessField = document.getElementById('spinalTenderness');
+            if (tendernessField) {
+                tendernessField.value = tendernessLocation;
+            }
+        }
+
+        /**
+         * Determines the anatomical region for tenderness based on surgical levels.
+         * @param {string} levels - The surgical levels string (e.g., "L4-L5").
+         * @returns {string} The description of the tenderness location.
+         */
+        function getTendernessRegion(levels) {
+            if (!levels || levels.trim() === '') return "Present over surgical region";
+            
+            const levelStr = levels.toLowerCase().trim();
+            
+            if (levelStr.includes('occiput') || levelStr.includes('c1') || levelStr.includes('c2')) return "Present over occipitocervical region";
+            if (levelStr.includes('c3') || levelStr.includes('c4') || levelStr.includes('c5') || levelStr.includes('c6') || levelStr.includes('c7')) return "Present over cervical spine";
+            if ((levelStr.includes('c7') && levelStr.includes('t1')) || (levelStr.includes('c6') && levelStr.includes('t1'))) return "Present over cervicothoracic junction";
+            if (levelStr.includes('t1') || levelStr.includes('t2') || levelStr.includes('t3') || levelStr.includes('t4') || levelStr.includes('t5') || levelStr.includes('t6') || levelStr.includes('t7')) return "Present over upper thoracic spine";
+            if (levelStr.includes('t8') || levelStr.includes('t9') || levelStr.includes('t10') || levelStr.includes('t11') || levelStr.includes('t12') || levelStr.includes('l1') || levelStr.includes('l2')) return "Present over thoracolumbar region";
+            if (levelStr.includes('l3') || levelStr.includes('l4') || levelStr.includes('l5') || levelStr.includes('s1') || levelStr.includes('ilium')) return "Present over lumbosacral region";
+            
+            return "Present over surgical region";
+        }
+
+        /**
+         * Copies the generated summary text to the user's clipboard.
+         */
+        function copySummary() {
+            const outputText = document.getElementById('output').textContent;
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(outputText).then(() => {
+                    showNotification('Copied to clipboard!');
+                }).catch(err => {
+                    showNotification('Failed to copy!', 'error');
+                });
+            } else {
+                // Fallback for insecure contexts or older browsers
+                const textArea = document.createElement("textarea");
+                textArea.value = outputText;
+                textArea.style.position = "fixed";
+                textArea.style.left = "-999999px";
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    showNotification('Copied to clipboard!');
+                } catch (err) {
+                    showNotification('Failed to copy!', 'error');
+                }
+                document.body.removeChild(textArea);
+            }
+        }
+        
+        // --- SUMMARY GENERATION LOGIC --- //
+        
+        /**
+         * Main function to gather all form data and generate the discharge summary.
+         */
+        function generateSummary() {
+            // Get all values from the form inputs
+            const patientName = document.getElementById('patientName').value;
+            const age = document.getElementById('age').value;
+            const gender = document.getElementById('gender').value;
+            const duration = document.getElementById('duration').value;
+            const painSide = document.getElementById('painSide').value;
+            const surgicalLevels = document.getElementById('surgicalLevels').value;
+            let specificDiagnosisTemplate = document.getElementById('specificDiagnosis').value;
+            const procedurePerformed = document.getElementById('procedurePerformed').value;
+            const painOnset = document.getElementById('painOnset').value;
+            const aggravatingFactors = document.getElementById('aggravatingFactors').value;
+            const relievingFactors = document.getElementById('relievingFactors').value;
+            const surgeryDate = document.getElementById('surgeryDate').value;
+            const mobilizationDate = document.getElementById('mobilizationDate').value;
+            const followupDate = document.getElementById('followupDate').value;
+            const spondyGrade = document.getElementById('spondyGrade').value;
+
+            // Get physical examination values
+            const gaitFindings = document.getElementById('gaitFindings').value;
+            const spinePosition = document.getElementById('spinePosition').value;
+            const deformitiesScars = document.getElementById('deformitiesScars').value;
+            const spinalTenderness = document.getElementById('spinalTenderness').value;
+            const muscleSpasm = document.getElementById('muscleSpasm').value;
+            const rangeOfMotion = document.getElementById('rangeOfMotion').value;
+            const bulk = document.getElementById('bulk').value;
+            const tone = document.getElementById('tone').value;
+            const sensations = document.getElementById('sensations').value;
+            const reflexes = document.getElementById('reflexes').value;
+            const babinski = document.getElementById('babinski').value;
+            const additionalFindings = document.getElementById('additionalFindings').value;
+            const vascularStatus = document.getElementById('vascularStatus').value;
+
+            // Get power assessment values and format them
+            const upperLimbPower = {
+                shoulderAbd: {right: document.getElementById('shoulderAbdRight').value + '/5', left: document.getElementById('shoulderAbdLeft').value + '/5'},
+                shoulderAdd: {right: document.getElementById('shoulderAddRight').value + '/5', left: document.getElementById('shoulderAddLeft').value + '/5'},
+                elbowFlex: {right: document.getElementById('elbowFlexRight').value + '/5', left: document.getElementById('elbowFlexLeft').value + '/5'},
+                elbowExt: {right: document.getElementById('elbowExtRight').value + '/5', left: document.getElementById('elbowExtLeft').value + '/5'},
+                wristFlex: {right: document.getElementById('wristFlexRight').value + '/5', left: document.getElementById('wristFlexLeft').value + '/5'},
+                wristExt: {right: document.getElementById('wristExtRight').value + '/5', left: document.getElementById('wristExtLeft').value + '/5'},
+                fingerGrip: {right: document.getElementById('fingerGripRight').value, left: document.getElementById('fingerGripLeft').value},
+                fingerAbd: {right: document.getElementById('fingerAbdRight').value + '/5', left: document.getElementById('fingerAbdLeft').value + '/5'}
+            };
+
+            const lowerLimbPower = {
+                hipFlex: {right: document.getElementById('hipFlexRight').value + '/5', left: document.getElementById('hipFlexLeft').value + '/5'},
+                hipExt: {right: document.getElementById('hipExtRight').value + '/5', left: document.getElementById('hipExtLeft').value + '/5'},
+                hipAbd: {right: document.getElementById('hipAbdRight').value + '/5', left: document.getElementById('hipAbdLeft').value + '/5'},
+                hipAdd: {right: document.getElementById('hipAddRight').value + '/5', left: document.getElementById('hipAddLeft').value + '/5'},
+                kneeFlex: {right: document.getElementById('kneeFlexRight').value + '/5', left: document.getElementById('kneeFlexLeft').value + '/5'},
+                kneeExt: {right: document.getElementById('kneeExtRight').value + '/5', left: document.getElementById('kneeExtLeft').value + '/5'},
+                ankleDF: {right: document.getElementById('ankleDFRight').value + '/5', left: document.getElementById('ankleDFLeft').value + '/5'},
+                anklePF: {right: document.getElementById('anklePFRight').value + '/5', left: document.getElementById('anklePFLeft').value + '/5'},
+                ehlEDL: {right: document.getElementById('ehlEDLRight').value + '/5', left: document.getElementById('ehlEDLLeft').value + '/5'},
+                fhlFDL: {right: document.getElementById('fhlFDLRight').value + '/5', left: document.getElementById('fhlFDLLeft').value + '/5'}
+            };
+
+            // Get checkbox values
+            const ceftumOral = document.getElementById('ceftumOral').checked;
+            const magnexIV = document.getElementById('magnexIV').checked;
+            const customAntibiotic = document.getElementById('customAntibiotic').checked;
+            const customAntibioticText = document.getElementById('customAntibioticText').value;
+            const pyrigesic = document.getElementById('pyrigesic').checked;
+            const tydol = document.getElementById('tydol').checked;
+            const imolPlus = document.getElementById('imolPlus').checked;
+            const ketorolacInjection = document.getElementById('ketorolacInjection').checked;
+            const tramadolInjection = document.getElementById('tramadolInjection').checked;
+            const lofecam = document.getElementById('lofecam').checked;
+            const nucoxia = document.getElementById('nucoxia').checked;
+            const hifenac = document.getElementById('hifenac').checked;
+            const naprosyn = document.getElementById('naprosyn').checked;
+            const supplements = document.getElementById('supplements').checked;
+            const dvtProphylaxis = document.getElementById('dvtProphylaxis').checked;
+            const osteoporosisMeds = document.getElementById('osteoporosisMeds').checked;
+            const muscleRelaxants = document.getElementById('muscleRelaxants').checked;
+            const patches = document.getElementById('patches').checked;
+            const lsCorset = document.getElementById('lsCorset').checked;
+            const carpalTunnelCare = document.getElementById('carpalTunnelCare').checked;
+            const cervicalNausea = document.getElementById('cervicalNausea').checked;
+            const physiotherapy = document.getElementById('physiotherapy').checked;
+            const steroids = document.getElementById('steroids').checked;
+            const drainCare = document.getElementById('drainCare').checked;
+            const neuroDeficitCare = document.getElementById('neuroDeficitCare').checked;
+
+            // --- TEXT FORMATTING AND GENERATION --- //
+            
+            let formattedDiagnosis = specificDiagnosisTemplate
+                .replace(/{levels}/g, surgicalLevels || '_______')
+                .replace(/{side}/g, painSide || '_______')
+                .replace(/{grade}/g, spondyGrade || 'I');
+            
+            if (neuroDeficitCare) {
+                formattedDiagnosis += " with neurological deficits";
+            }
+            
+            function getPainRegion(levels) {
+                if (!levels) return "pain";
+                const levelStr = levels.toLowerCase();
+                if (levelStr.includes('occiput') || levelStr.includes('c1') || levelStr.includes('c2')) return "neck pain and headache";
+                if (levelStr.includes('c3') || levelStr.includes('c4') || levelStr.includes('c5') || levelStr.includes('c6') || levelStr.includes('c7')) return `neck and ${painSide || "bilateral"} upper limb pain`;
+                if ((levelStr.includes('c7') && levelStr.includes('t1')) || (levelStr.includes('c6') && levelStr.includes('t1'))) return `neck and ${painSide || "bilateral"} upper limb pain`;
+                if (levelStr.includes('t1') || levelStr.includes('t2') || levelStr.includes('t3') || levelStr.includes('t4') || levelStr.includes('t5') || levelStr.includes('t6') || levelStr.includes('t7')) return `upper back pain and ${painSide || "bilateral"} lower limb pain`;
+                if (levelStr.includes('t8') || levelStr.includes('t9') || levelStr.includes('t10') || levelStr.includes('t11') || levelStr.includes('t12') || levelStr.includes('l1') || levelStr.includes('l2')) return `mid back pain and ${painSide || "bilateral"} lower limb pain`;
+                if (levelStr.includes('l3') || levelStr.includes('l4') || levelStr.includes('l5') || levelStr.includes('s1') || levelStr.includes('ilium')) return `low back pain and ${painSide || "bilateral"} leg pain`;
+                return "spinal pain";
+            }
+
+            const autoGeneratedPainRegion = getPainRegion(surgicalLevels);
+            const formattedDate = surgeryDate ? new Date(surgeryDate).toLocaleDateString('en-GB') : "___________";
+            
+            // --- BUILD THE SUMMARY STRING --- //
+            
+            let summary = `DISCHARGE SUMMARY - SPINE CARE
+
+PATIENT INFORMATION
+Name: ${patientName || "_______________"}
+Age: ${age || "_____"} years
+Duration of symptoms: ${duration || "_______________"}
+Pain side: ${painSide || "_______________"}
+Surgical levels: ${surgicalLevels || "_______________"}
+
+TREATING CONSULTANTS
+- Dr. Vidyadhara S.
+- Dr. Dhiyanesh K
+- Dr. Balamurugan Thirugnanam
+- Dr. Abhishek Soni
+
+CHIEF COMPLAINTS
+${autoGeneratedPainRegion.charAt(0).toUpperCase() + autoGeneratedPainRegion.slice(1)} for last ${duration || "_______"}
+
+PRESENTING ILLNESS
+`;
+
+            const genderTitle = gender === 'male' ? 'Mr.' : gender === 'female' ? 'Mrs.' : 'Patient';
+            const genderPronoun = gender === 'male' ? 'He' : gender === 'female' ? 'She' : 'Patient';
+            const genderPronounLower = gender === 'male' ? 'he' : gender === 'female' ? 'she' : 'patient';
+            const genderNoun = gender === 'male' ? 'gentleman' : gender === 'female' ? 'lady' : 'patient';
+
+            summary += `${genderTitle} ${patientName || "_______"}, a ${age || "_____"} year old ${genderNoun} presented with ${autoGeneratedPainRegion} for the last ${duration || "_______"}. Pain was ${painOnset || "_______"} in onset, gradually progressive. The patient complained of pain to be more on ${aggravatingFactors || "_______"} and decreased on ${relievingFactors || "taking rest and medications"}. No history of weakness of limbs. No history of bladder or bowel involvement. No history of fever or constitutional symptoms prior to the onset.
+
+DIAGNOSIS
+${formattedDiagnosis || "_______"}
+
+PHYSICAL EXAMINATION
+
+GAIT: ${gaitFindings}
+
+INSPECTION:
+- Spine: ${spinePosition}
+- ${deformitiesScars}
+
+PALPATION:
+- Spinal tenderness: ${spinalTenderness}
+- ${muscleSpasm}
+- Range of motion: ${rangeOfMotion}
+
+NEUROLOGY:
+- Bulk: ${bulk}
+- Tone: ${tone}
+
+Power Assessment:
+                      RIGHT    LEFT
+UPPER LIMB:
+Shoulder
+  Abduction           ${upperLimbPower.shoulderAbd.right.padEnd(8)} ${upperLimbPower.shoulderAbd.left}
+  Adduction           ${upperLimbPower.shoulderAdd.right.padEnd(8)} ${upperLimbPower.shoulderAdd.left}
+Elbow
+  Flexion             ${upperLimbPower.elbowFlex.right.padEnd(8)} ${upperLimbPower.elbowFlex.left}
+  Extension           ${upperLimbPower.elbowExt.right.padEnd(8)} ${upperLimbPower.elbowExt.left}
+Wrist
+  Flexion             ${upperLimbPower.wristFlex.right.padEnd(8)} ${upperLimbPower.wristFlex.left}
+  Extension           ${upperLimbPower.wristExt.right.padEnd(8)} ${upperLimbPower.wristExt.left}
+Finger grip           ${upperLimbPower.fingerGrip.right.padEnd(8)} ${upperLimbPower.fingerGrip.left}
+Finger abduction      ${upperLimbPower.fingerAbd.right.padEnd(8)} ${upperLimbPower.fingerAbd.left}
+
+LOWER LIMB:
+Hip
+  Flexion             ${lowerLimbPower.hipFlex.right.padEnd(8)} ${lowerLimbPower.hipFlex.left}
+  Extension           ${lowerLimbPower.hipExt.right.padEnd(8)} ${lowerLimbPower.hipExt.left}
+  Abduction           ${lowerLimbPower.hipAbd.right.padEnd(8)} ${lowerLimbPower.hipAbd.left}
+  Adduction           ${lowerLimbPower.hipAdd.right.padEnd(8)} ${lowerLimbPower.hipAdd.left}
+Knee
+  Flexion             ${lowerLimbPower.kneeFlex.right.padEnd(8)} ${lowerLimbPower.kneeFlex.left}
+  Extension           ${lowerLimbPower.kneeExt.right.padEnd(8)} ${lowerLimbPower.kneeExt.left}
+Ankle
+  Dorsiflexion        ${lowerLimbPower.ankleDF.right.padEnd(8)} ${lowerLimbPower.ankleDF.left}
+  Plantarflexion      ${lowerLimbPower.anklePF.right.padEnd(8)} ${lowerLimbPower.anklePF.left}
+  EHL, EDL            ${lowerLimbPower.ehlEDL.right.padEnd(8)} ${lowerLimbPower.ehlEDL.left}
+  FHL, FDL            ${lowerLimbPower.fhlFDL.right.padEnd(8)} ${lowerLimbPower.fhlFDL.left}
+
+- Sensations: ${sensations}
+- Reflexes: ${reflexes}
+- Babinski's: ${babinski}
+${additionalFindings ? `- Additional Findings: ${additionalFindings}` : ''}
+
+VASCULAR STATUS: ${vascularStatus}
+
+TREATMENT
+Date: ${formattedDate}
+Procedure: ${procedurePerformed || "Surgical intervention"} of ${surgicalLevels || "_______"} performed by Dr. Vidyadhara S.
+
+Implants Used:
+- Medtronics Solera (Titanium)
+- Medtronics Legacy (Titanium)
+- Jayon Ultra (Titanium)
+
+Cage/Grafts:
+- Bullet cage (Jayon)
+- Medtronics PEEK
+- Medtronics ADAPTIX
+
+COURSE OF ILLNESS
+`;
+            const formattedMobilizationDate = mobilizationDate ? new Date(mobilizationDate).toLocaleDateString('en-GB') : "the next day";
+            const drainStatement = drainCare ? "The drain was functional and surgical wound was healthy." : "The surgical wound was healthy.";
+            
+            summary += `${genderTitle} ${patientName || "_______"}, a ${age || "_____"} year old ${genderNoun} presented with ${autoGeneratedPainRegion} for ${duration || "_______"}. ${genderPronoun} was clinicoradiologically evaluated and diagnosed to have ${formattedDiagnosis || "_______"}. ${genderPronoun} was advised surgery in view of the long-standing disability. After admission, patient was evaluated by anesthetist and found fit for surgery. The patient and relatives were explained regarding the involved surgical risks and ${genderPronounLower} underwent the aforementioned surgery successfully. ${genderPronoun} was mobilized on ${formattedMobilizationDate} and was comfortable walking with assistance. ${drainStatement} ${genderPronoun} was planned for discharge with the following advice.
+
+## DISCHARGE ORDERS
+
+### MEDICATIONS
+
+FOR PAIN:`;
+            if (pyrigesic) summary += `
+- Tab. Pyrigesic 1000 mg 1-1-1 × 7 days (half hour after food), then
+- Tab. Pyrigesic 1000 mg 1-0-1 × 7 days (half hour after food), then
+- Tab. Pyrigesic 1000 mg 1-0-0 × 7 days (half hour after food)`;
+            if (tydol) summary += `
+- Tab. Tydol 50 mg 1-1-1 × 7 days (half hour after food), then
+- Tab. Tydol 50 mg 1-0-1 × 7 days (half hour after food), then
+- Tab. Tydol 50 mg 1-0-0 × 7 days (half hour after food)`;
+            if (imolPlus) summary += `
+- Tab. Imol Plus 1-1-1 × 7 days (half hour after food), then
+- Tab. Imol Plus 1-0-1 × 7 days (half hour after food), then
+- Tab. Imol Plus 1-0-0 × 7 days (half hour after food)`;
+            if (lofecam) summary += `
+- Tab. Lofecam 8 mg 1-1-1 × 7 days (half hour after food), then
+- Tab. Lofecam 8 mg 1-0-1 × 7 days (half hour after food), then
+- Tab. Lofecam 8 mg 1-0-0 × 7 days (half hour after food)`;
+            if (nucoxia) summary += `
+- Tab. Nucoxia 90/120 mg 1-1-1 × 7 days (half hour after food), then
+- Tab. Nucoxia 90/120 mg 1-0-1 × 7 days (half hour after food), then
+- Tab. Nucoxia 90/120 mg 1-0-0 × 7 days (half hour after food)`;
+            if (hifenac) summary += `
+- Tab. Hifenac 100 mg 1-1-1 × 7 days (half hour after food), then
+- Tab. Hifenac 100 mg 1-0-1 × 7 days (half hour after food), then
+- Tab. Hifenac 100 mg 1-0-0 × 7 days (half hour after food)`;
+            if (naprosyn) summary += `
+- Tab. Naprosyn 250/500 mg 1-1-1 × 7 days (half hour after food), then
+- Tab. Naprosyn 250/500 mg 1-0-1 × 7 days (half hour after food), then
+- Tab. Naprosyn 250/500 mg 1-0-0 × 7 days (half hour after food)`;
+
+            if (ketorolacInjection || tramadolInjection) {
+                summary += `
+- SOS Injection:`;
+                if (ketorolacInjection) summary += `
+  - IM Injection Ketorolac 1 ampule (30 mg) SOS / at night (7:00 PM) for 7 Days`;
+                if (tramadolInjection) summary += `
+  - IM Injection Tramadol 1 ampule (50 mg) SOS / at night (7:00 PM) for 7 Days`;
+            }
+            if (pyrigesic || tydol || imolPlus || lofecam || nucoxia || hifenac || naprosyn) {
+                summary += `
+- Home Care: +91 9591140000 / 1800 1026070 (8 am-8 pm)`;
+            }
+
+            summary += `
+
+FOR ACIDITY (half hour before food):
+- Tab. Pan-D 1-0-0 × 21 days & SOS
+
+ANTIBIOTIC:`;
+            if (ceftumOral) summary += `
+- Tab. Ceftum 500 mg 1-0-1 × 7 days (half hour after food)`;
+            if (magnexIV) summary += `
+- Inj. Magnex Forte 3 gm IV once daily × 7 days`;
+            if (customAntibiotic && customAntibioticText) summary += `
+- ${customAntibioticText}`;
+
+            summary += `
+
+FOR NUMBNESS:
+- Cap. Pregalin SR 0-0-1 × 6 weeks & SOS
+- (Stop if patient becomes excessively drowsy or has no neurological symptoms)
+
+FOR CONSTIPATION:
+- Syp. Cremaffin 30 ml at night × 5 days
+- Proctoclysis Enema after 2-3 days if needed - Call Home Care +91 9591140000 / 1800 1026070 (8 am-8 pm)`;
+
+            if (supplements) summary += `
+
+SUPPLEMENTS:
+- Cap. Lumia 60,000 IU 1 cap/week × 12 weeks, then 1 cap/month × 12 months
+- Tab. Becosules-Z 1-0-0 × 3 months
+- Tab. Shelcal 500 mg 1-0-0 × 3 months
+- Tab. Orofer XT 1-0-0 × 1 month`;
+            if (dvtProphylaxis) summary += `
+
+DVT PROPHYLAXIS:
+- Tab. Xarelto 10 mg 1-0-0 × 14 days`;
+            if (osteoporosisMeds) summary += `
+
+OSTEOPOROSIS MANAGEMENT:
+- Inj. Teriparatide 20 mcg subcutaneously daily × 3 months
+- (Review with endocrinologist with fasting PTH blood report after 3 months)`;
+            if (muscleRelaxants) summary += `
+
+MUSCLE RELAXANTS:
+- Tab. Tolfree/Synaptol (Tolperisone sustained release) 1-1-1 × 10 days (after food)
+- Tab. Myoril (Thiocolchicoside) 4 mg/8 mg × 10 days (after food)`;
+            if (patches) summary += `
+
+PAIN PATCHES:
+- Buprenorphine patch 10 mcg × 2 (apply to arm once every 5 days)
+- Diclofenac (NU patch) 200 mg once daily
+- Fentanyl (Duragesic) 25/50/75 mcg once every alternate day`;
+            if (cervicalNausea) summary += `
+
+FOR NAUSEA AND VOMITING (half hour before food):
+- Tab. Emeset 4 mg 1-0-1 × 5 days & SOS`;
+            if (steroids) summary += `
+
+SHORT COURSE STEROIDS (half hour after food):
+- Tab. Medrol 4 mg 2-2-2 × 2 days, then
+- Tab. Medrol 4 mg 2-0-2 × 2 days, then
+- Tab. Medrol 4 mg 1-1-1 × 2 days, then
+- Tab. Medrol 4 mg 1-0-1 × 2 days, then
+- Tab. Medrol 4 mg 1-0-0 × 2 days and stop`;
+            if (lsCorset) summary += `
+
+SPINAL SUPPORT:
+- Use LS Corset/Knight-Taylor Brace as instructed when sitting, standing and walking`;
+            if (carpalTunnelCare) summary += `
+
+HAND ELEVATION CARE:
+- Elevate the limb while sleeping and use arm sling during ambulation
+- Maintain full range of motion of fingers to avoid swelling`;
+            if (neuroDeficitCare) summary += `
+
+NEUROLOGICAL DEFICIT CARE PROTOCOL:
+
+ADVANCED HOME PHYSIOTHERAPY:
+1. Electrical stimulation of muscles of upper/lower limbs if power is less than grade 3/5
+2. Active assisted strengthening exercises of upper and lower limb muscles grade 3 and above
+3. Gentle passive mobilization and full range of motion exercises of all joints of all 4 limbs
+4. Height adjustable Walker/Elbow crutches/quadrapod/tripod walking sticks as required
+
+CARE OF PARAPLEGIC/QUADRIPARETIC/QUADRIPLEGIC:
+1. Care of the Back
+   - Change position 2nd hourly/water bed/alpha mattress
+   - Report immediately if any redness or tenderness over pressure points
+2. Care of bowel
+   - Regular enemas (every 2-3 days of constipation)
+   - Coloprep (after 4-5 days of constipation)
+3. Care of bladder
+   - Care of indwelling Foley catheter wherever applicable
+   - Clean Intermittent Catheterisation whenever possible
+4. Care of Lungs
+   - Chest physiotherapy
+   - Deep breathing exercises 2nd hourly
+   - Incentive Spirometry 2nd hourly
+   - Propped up position helps
+
+DVT PROPHYLAXIS FOR NEUROLOGICAL DEFICITS:
+- Tab. Xarelto 10 mg 1-0-0 × 14 days
+- Graduated compression stockings for 6 weeks
+- Intermittent pneumatic compression devices while in-hospital`;
+            if (drainCare) summary += `
+
+### DRAIN CARE
+1. Empty and measure ROMOVAC drain every morning; record measurements daily
+2. Always clamp drain tube before disconnecting/opening container
+3. Do NOT apply negative pressure - keep free flow
+4. Do not clamp tube unless instructed
+5. No need to wash drain container
+6. Keep drain container at or below body/bed level - NEVER higher than body`;
+
+            summary += `
+
+### DRESSING CARE
+1. Do NOT wash/wet the dressing
+2. Avoid soiling with urine/stool
+3. Contact duty phone +91 9485554542 for soakage/soiling/blood-stained dressing
+4. Only sponge bath and hair wash allowed (avoid wetting dressing area)
+5. Do not scratch dressing area
+
+### ACTIVITY & MOBILIZATION
+- Follow physician orders for medical conditions
+- Guarded mobilization as tolerated - prevent falls/injury`;
+            if (physiotherapy) summary += `
+- Physiotherapy assistance: Dr. Shalom Abraham +919035463590
+
+HOME PHYSIOTHERAPY:
+1. Active assisted strengthening exercises of upper and lower limb muscles
+2. Gentle passive mobilization and full range of motion exercises of all joints
+3. Gradual weight bearing as tolerated
+4. Walking aids as required (Walker/Elbow crutches/quadrapod/tripod walking sticks)`;
+
+            summary += `
+
+### FOLLOW-UP
+- Review: Spine Care OPD for dressing with prior appointment 080-25023334
+- Emergency contact: Spine Care Duty Mobile +91 98455 54542
+- Ambulance: MARS +91 80 2222 1111 or nearby hospital
+- Dr. Contact: SMS/WhatsApp only +91-9845210001 (no calls)
+
+Report immediately: High-grade fever, surgical site soakage, drowsiness, irrelevant talk
+`;
+
+            // --- OPERATIVE NOTES SECTION (MODIFIED) ---
+            summary += `
+
+## OPERATIVE NOTES`;
+
+            // Get the specific template for the selected procedure
+            const procedureKey = document.getElementById('procedurePerformed').value;
+            let operativeNoteTemplate = operativeNoteTemplates[procedureKey] || operativeNoteTemplates['default'];
+
+            // Format the selected template
+            let formattedOperativeNote = operativeNoteTemplate
+                .replace(/{levels}/g, surgicalLevels || '_______')
+                .replace(/{side}/g, painSide || '_______')
+                .replace(/{procedure}/g, procedurePerformed || 'Surgical intervention') // For default template
+                .replace(/{drain}/g, drainCare ? " over a drain" : ""); // For default template
+
+            summary += formattedOperativeNote;
+
+
+            // Display the generated summary
+            document.getElementById('output').textContent = summary;
+        }
+
+        // --- INITIALIZATION --- //
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize the tenderness location on page load
+            updateTendernessLocation();
+
+            // Add event listener for the custom antibiotic checkbox
+            document.getElementById('customAntibiotic').addEventListener('change', function() {
+                const customField = document.getElementById('customAntibioticField');
+                customField.style.display = this.checked ? 'block' : 'none';
+            });
+            
+            // Add event listener to show/hide the spondylolisthesis grade dropdown
+            document.getElementById('specificDiagnosis').addEventListener('change', function() {
+                const spondyGroup = document.getElementById('spondyGradeGroup');
+                const selectedOption = this.options[this.selectedIndex];
+                if (selectedOption && selectedOption.text.includes('Spondylolisthesis')) {
+                    spondyGroup.style.display = 'block';
+                } else {
+                    spondyGroup.style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
