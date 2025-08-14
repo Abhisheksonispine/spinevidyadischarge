@@ -384,17 +384,13 @@
                     <label for="diagnosisCategory">Diagnosis Category:</label>
                     <select id="diagnosisCategory" onchange="updateDiagnosisOptions()">
                         <option value="">Select Category</option>
-                        <option value="lumbar">Lumbar Spine Disorders</option>
-                        <option value="thoracic">Thoracic/Thoracolumbar Spine</option>
-                        <option value="cervical">Cervical Spine Disorders</option>
-                        <option value="cervicothoracic">Cervicothoracic Junction</option>
-                        <option value="occipitocervical">Occipitocervical Region</option>
-                        <option value="atlantoaxial">Atlantoaxial Complex</option>
-                        <option value="scoliosis">Scoliosis & Spinal Deformities</option>
-                        <option value="fractures">Spinal Fractures</option>
-                        <option value="vertebral">Vertebral Body Procedures</option>
-                        <option value="peripheral">Peripheral Nerve Disorders</option>
-                        <option value="other">Other Conditions</option>
+                        <option value="cervical">Cervical & Craniovertebral Disorders</option>
+                        <option value="thoracic">Thoracic Spine Disorders</option>
+                        <option value="lumbar">Lumbar & Sacral Spine Disorders</option>
+                        <option value="deformity">Spinal Deformity</option>
+                        <option value="trauma">Spinal Trauma & Fractures</option>
+                        <option value="infection_tumor">Spinal Tumor & Infection</option>
+                        <option value="carpal_tunnel">Carpal Tunnel Syndrome</option>
                     </select>
                 </div>
                 
@@ -773,65 +769,55 @@
                 "Thoracic Disc Herniation": "{levels} thoracic disc prolapse with myelopathy and severe functional disability",
                 "Thoracic Spinal Stenosis": "{levels} thoracic spinal stenosis with myelopathy and severe functional disability",
                 "Thoracic Spondylosis": "{levels} thoracic spondylosis with cord compression and severe functional disability",
-                "Thoracolumbar Fracture": "{levels} thoracolumbar fracture with neurological compromise",
-                "Thoracic Myelopathy": "{levels} thoracic myelopathy with severe functional disability",
-                "Scheuermann's Disease": "{levels} Scheuermann's kyphosis with severe functional disability",
-                "Thoracic Kyphoscoliosis": "{levels} thoracic kyphoscoliosis with severe functional disability"
+                "Thoracic Myelopathy": "{levels} thoracic myelopathy with severe functional disability"
             },
             cervical: {
                 "Cervical Disc Herniation": "{levels} cervical disc prolapse {side} upper limb radicular pain and severe functional disability",
                 "Cervical Myelopathy": "{levels} cervical disc prolapse, with cervical myelopathy and severe functional disability",
                 "Cervical Spondylotic Myelopathy": "{levels} Cervical spondylotic myelopathy with severe functional disability",
                 "Cervical OPLL": "{levels} OPLL with cervical spondylotic myelopathy and severe functional disability",
-                "Cervical Radiculopathy": "{levels} cervical radiculopathy with {side} upper limb pain and severe functional disability"
-            },
-            cervicothoracic: {
+                "Cervical Radiculopathy": "{levels} cervical radiculopathy with {side} upper limb pain and severe functional disability",
                 "Cervicothoracic Kyphosis": "{levels} cervicothoracic kyphosis with severe functional disability",
                 "C7-T1 Disc Disease": "{levels} disc prolapse with radiculomyelopathy and severe functional disability",
                 "Cervicothoracic Junction Stenosis": "{levels} cervicothoracic junction stenosis with myelopathy and severe functional disability",
-                "Cervicothoracic Instability": "{levels} cervicothoracic instability with severe functional disability"
-            },
-            occipitocervical: {
+                "Cervicothoracic Instability": "{levels} cervicothoracic instability with severe functional disability",
                 "Occipitocervical Instability": "{levels} occipitocervical instability with severe functional disability",
                 "Basilar Invagination": "{levels} basilar invagination with brainstem compression and severe functional disability",
                 "Rheumatoid Atlantoaxial Subluxation": "{levels} rheumatoid atlantoaxial subluxation with myelopathy and severe functional disability",
                 "Chiari with Instability": "{levels} Chiari malformation with occipitocervical instability and severe functional disability",
-                "Occipital Condyle Fracture": "{levels} occipital condyle fracture with craniocervical instability"
-            },
-            atlantoaxial: {
                 "Atlantoaxial Subluxation": "{levels} atlantoaxial subluxation with myelopathy and severe functional disability",
-                "Odontoid Fracture": "{levels} odontoid fracture with atlantoaxial instability",
-                "C1-C2 Instability": "{levels} instability with severe functional disability",
                 "Os Odontoideum": "{levels} os odontoideum with atlantoaxial instability and myelopathy",
                 "Atlantoaxial Rotatory Fixation": "{levels} atlantoaxial rotatory fixation with severe functional disability"
             },
-            scoliosis: {
-                "Posterior Scoliosis Correction": "Adolescent Idiopathic scoliosis {levels} Lenke Type with severe functional disability",
+            deformity: {
+                "Adolescent Idiopathic Scoliosis": "Adolescent Idiopathic scoliosis {levels} Lenke Type with severe functional disability",
                 "Congenital Scoliosis": "{levels} congenital scoliosis with severe functional disability",
                 "Hemivertebrae": "{levels} hemivertebrae with progressive spinal deformity",
-                "Adult Degenerative Scoliosis": "{levels} adult degenerative scoliosis with severe functional disability"
+                "Adult Degenerative Scoliosis": "{levels} adult degenerative scoliosis with severe functional disability",
+                "Scheuermann's Disease": "{levels} Scheuermann's kyphosis with severe functional disability",
+                "Thoracic Kyphoscoliosis": "{levels} thoracic kyphoscoliosis with severe functional disability"
             },
-            fractures: {
+            trauma: {
                 "Vertebral Compression Fracture": "{levels} anterior wedge compression fracture with severe functional disability",
                 "Pathological Fracture": "{levels} pathological compression fracture with severe functional disability",
                 "Chance Fracture": "{levels} flexion-distraction injury (Chance fracture) with disruption of the posterior ligamentous complex and severe spinal instability",
                 "Osteoporotic Fracture": "{levels} osteoporotic compression fracture with severe functional disability",
                 "Burst Fracture": "{levels} burst fracture with neurological compromise",
-                "L1 Chance Fracture": "L1 flexion-distraction injury (Chance fracture) with disruption of the posterior ligamentous complex and severe spinal instability"
-            },
-            vertebral: {
+                "L1 Chance Fracture": "L1 flexion-distraction injury (Chance fracture) with disruption of the posterior ligamentous complex and severe spinal instability",
+                "Occipital Condyle Fracture": "{levels} occipital condyle fracture with craniocervical instability",
+                "Odontoid Fracture": "{levels} odontoid fracture with atlantoaxial instability",
                 "Vertebral Metastasis": "{levels} pathological compression fracture requiring cement augmentation",
                 "Osteoporotic Collapse": "{levels} osteoporotic compression fracture requiring kyphoplasty",
                 "Vertebral Hemangioma": "{levels} vertebral hemangioma requiring vertebroplasty",
                 "Multiple Myeloma": "{levels} vertebral metastasis requiring biopsy and cement augmentation"
             },
-            peripheral: {
+            carpal_tunnel: {
                 "Bilateral Carpal Tunnel Syndrome": "Bilateral Carpal tunnel syndrome with severe functional disability",
                 "Unilateral Carpal Tunnel Syndrome": "{side} Carpal tunnel syndrome with severe functional disability",
                 "Cubital Tunnel Syndrome": "{side} Cubital tunnel syndrome with ulnar nerve compression"
             },
-            other: {
-                "Coccydynia": "Coccydynia with severe functional disability requiring coccygectomy",
+            infection_tumor: {
+                "Spondylodiscitis": "Spondylodiscitis at {levels} with severe functional disability",
                 "Spinal Infection": "{levels} spinal infection with severe functional disability",
                 "Spinal Tumor": "{levels} spinal tumor with neurological compromise"
             }
@@ -853,9 +839,7 @@
                 "Thoracolumbar Fusion": "circumferential decompression and global instrumented fusion",
                 "Thoracic Discectomy": "Thoracic discectomy via costotransversectomy approach",
                 "Costotransversectomy": "Costotransversectomy with disc removal",
-                "Thoracic Decompression": "Thoracic spinal cord decompression",
-                "Thoracic Kyphosis Correction": "circumferential decompression and global instrumented fusion with kyphosis correction",
-                "Multi-level Thoracic Fusion": "circumferential decompression and global instrumented fusion"
+                "Thoracic Decompression": "Thoracic spinal cord decompression"
             },
             cervical: {
                 "ACDF": "Anterior Cervical Discectomy and Fusion (ACDF)",
@@ -863,52 +847,40 @@
                 "Artificial Disc Replacement": "Artificial Disc Replacement (ADR)",
                 "Posterior Cervical Fusion": "circumferential decompression and global instrumented fusion",
                 "Cervical Laminectomy": "Posterior limited laminectomy",
-                "Cervical Laminoplasty": "Cervical laminoplasty for myelopathy"
-            },
-            cervicothoracic: {
-                "Cervicothoracic Fusion": "circumferential decompression and global instrumented fusion",
+                "Cervical Laminoplasty": "Cervical laminoplasty for myelopathy",
                 "C7-T1 ACDF": "C7-T1 anterior cervical discectomy and fusion",
-                "Combined Approach": "circumferential decompression and global instrumented fusion",
-                "Cervicothoracic Decompression": "circumferential decompression and global instrumented fusion"
-            },
-            occipitocervical: {
                 "Occipitocervical Fusion": "circumferential decompression and global instrumented fusion (occipitocervical)",
                 "Occiput to C2 Fusion": "circumferential decompression and global instrumented fusion (occiput to C2)",
-                "Occipitocervical Stabilization": "circumferential decompression and global instrumented fusion",
                 "Foramen Magnum Decompression": "Foramen magnum decompression with circumferential decompression and global instrumented fusion",
-                "Chiari Decompression": "Suboccipital craniectomy with circumferential decompression and global instrumented fusion"
-            },
-            atlantoaxial: {
+                "Chiari Decompression": "Suboccipital craniectomy with circumferential decompression and global instrumented fusion",
                 "Atlantoaxial Fusion": "circumferential decompression and global instrumented fusion (atlantoaxial)",
                 "C1-C2 Fusion": "circumferential decompression and global instrumented fusion (C1-C2)",
                 "Transarticular Fixation": "C1-C2 transarticular screw fixation",
-                "C1-C2 Stabilization": "circumferential decompression and global instrumented fusion",
                 "Odontoid Screw": "Anterior odontoid screw fixation"
             },
-            scoliosis: {
+            deformity: {
                 "Posterior Scoliosis Correction": "circumferential decompression and global instrumented fusion with scoliosis correction",
                 "Anterior-Posterior Correction": "circumferential decompression and global instrumented fusion (combined approach)",
-                "Growing Rod Surgery": "Growing rod insertion for progressive scoliosis"
+                "Growing Rod Surgery": "Growing rod insertion for progressive scoliosis",
+                "Thoracic Kyphosis Correction": "circumferential decompression and global instrumented fusion with kyphosis correction"
             },
-            fractures: {
+            trauma: {
                 "Percutaneous Fixation": "Percutaneous posterior stabilization",
                 "Open Reduction Internal Fixation": "Open reduction and internal fixation",
-                "Corpectomy and Fusion": "Corpectomy with circumferential decompression and global instrumented fusion"
-            },
-            vertebral: {
+                "Corpectomy and Fusion": "Corpectomy with circumferential decompression and global instrumented fusion",
                 "Vertebroplasty": "Percutaneous vertebroplasty",
                 "Kyphoplasty": "Percutaneous vertebral body biopsy and balloon kyphoplasty",
                 "Vertebral Biopsy": "Percutaneous vertebral body biopsy",
                 "Cement Augmentation": "Vertebral body cement augmentation",
                 "Kyphoplasty with Biopsy": "Percutaneous vertebral body biopsy, posterior vertebral body cement augmentation, indirect anterior decompression using balloon kyphoplasty"
             },
-            peripheral: {
+            carpal_tunnel: {
                 "Bilateral CTR": "Bilateral carpal tunnel release",
                 "Unilateral CTR": "Unilateral carpal tunnel release",
                 "Cubital Tunnel Release": "Cubital tunnel release with ulnar nerve decompression"
             },
-            other: {
-                "Coccydynia": "Coccygectomy",
+            infection_tumor: {
+                "Circumferential Fusion": "circumferential decompression and global instrumented fusion",
                 "Spinal Debridement": "Spinal debridement and fusion",
                 "Tumor Resection": "Spinal tumor resection and stabilization"
             }
@@ -1255,6 +1227,32 @@ Outcome:
                 formattedDiagnosis += " with neurological deficits";
             }
             
+            const genderTitle = gender === 'male' ? 'Mr.' : gender === 'female' ? 'Mrs.' : 'Patient';
+            const genderPronoun = gender === 'male' ? 'He' : gender === 'female' ? 'She' : 'Patient';
+            const genderPronounLower = gender === 'male' ? 'he' : gender === 'female' ? 'she' : 'patient';
+            const genderNoun = gender === 'male' ? 'gentleman' : gender === 'female' ? 'lady' : 'patient';
+
+            const diagnosisSelect = document.getElementById('specificDiagnosis');
+            const selectedDiagnosisText = diagnosisSelect.options[diagnosisSelect.selectedIndex].text;
+
+            let presentingIllness = '';
+            let courseOfIllness = '';
+            let chiefComplaints = '';
+
+            if (selectedDiagnosisText.includes('Carpal Tunnel Syndrome')) {
+                chiefComplaints = `Numbness and tingling in the ${painSide} hand for the last ${duration || "_______"}`;
+                presentingIllness = `${genderTitle} ${patientName || "_______"}, a ${age || "_____"} year old ${genderNoun} presented with numbness and tingling in the ${painSide} hand, primarily affecting the thumb, index, and middle fingers, for the last ${duration || "_______"}. Symptoms were worse at night and with activities like driving or holding a phone. Clinical examination and nerve conduction studies were suggestive of ${painSide} Carpal Tunnel Syndrome.`;
+                courseOfIllness = `The patient was evaluated and diagnosed to have ${formattedDiagnosis || "_______"}. Due to persistent symptoms and functional disability, ${genderPronounLower} was advised for surgical decompression. The patient underwent a successful ${painSide} Carpal Tunnel Release. Post-operatively, the patient was encouraged to perform finger and wrist range of motion exercises. The surgical wound was healthy, and the patient was planned for discharge with the following advice.`;
+            } else {
+                const autoGeneratedPainRegion = getPainRegion(surgicalLevels);
+                chiefComplaints = `${autoGeneratedPainRegion.charAt(0).toUpperCase() + autoGeneratedPainRegion.slice(1)} for last ${duration || "_______"}`;
+                presentingIllness = `${genderTitle} ${patientName || "_______"}, a ${age || "_____"} year old ${genderNoun} presented with ${autoGeneratedPainRegion} for the last ${duration || "_______"}. Pain was ${painOnset || "_______"} in onset, gradually progressive. The patient complained of pain to be more on ${aggravatingFactors || "_______"} and decreased on ${relievingFactors || "taking rest and medications"}. No history of weakness of limbs. No history of bladder or bowel involvement. No history of fever or constitutional symptoms prior to the onset.`;
+                
+                const formattedMobilizationDate = mobilizationDate ? new Date(mobilizationDate).toLocaleDateString('en-GB') : "the next day";
+                const drainStatement = drainCare ? "The drain was functional and surgical wound was healthy." : "The surgical wound was healthy.";
+                courseOfIllness = `${genderTitle} ${patientName || "_______"}, a ${age || "_____"} year old ${genderNoun} presented with ${autoGeneratedPainRegion} for ${duration || "_______"}. ${genderPronoun} was clinicoradiologically evaluated and diagnosed to have ${formattedDiagnosis || "_______"}. ${genderPronoun} was advised surgery in view of the long-standing disability. After admission, patient was evaluated by anesthetist and found fit for surgery. The patient and relatives were explained regarding the involved surgical risks and ${genderPronounLower} underwent the aforementioned surgery successfully. ${genderPronoun} was mobilized on ${formattedMobilizationDate} and was comfortable walking with assistance. ${drainStatement} ${genderPronoun} was planned for discharge with the following advice.`;
+            }
+            
             function getPainRegion(levels) {
                 if (!levels) return "pain";
                 const levelStr = levels.toLowerCase();
@@ -1267,7 +1265,6 @@ Outcome:
                 return "spinal pain";
             }
 
-            const autoGeneratedPainRegion = getPainRegion(surgicalLevels);
             const formattedDate = surgeryDate ? new Date(surgeryDate).toLocaleDateString('en-GB') : "___________";
             
             // --- BUILD THE SUMMARY STRING --- //
@@ -1288,17 +1285,10 @@ TREATING CONSULTANTS
 - Dr. Abhishek Soni
 
 CHIEF COMPLAINTS
-${autoGeneratedPainRegion.charAt(0).toUpperCase() + autoGeneratedPainRegion.slice(1)} for last ${duration || "_______"}
+${chiefComplaints}
 
 PRESENTING ILLNESS
-`;
-
-            const genderTitle = gender === 'male' ? 'Mr.' : gender === 'female' ? 'Mrs.' : 'Patient';
-            const genderPronoun = gender === 'male' ? 'He' : gender === 'female' ? 'She' : 'Patient';
-            const genderPronounLower = gender === 'male' ? 'he' : gender === 'female' ? 'she' : 'patient';
-            const genderNoun = gender === 'male' ? 'gentleman' : gender === 'female' ? 'lady' : 'patient';
-
-            summary += `${genderTitle} ${patientName || "_______"}, a ${age || "_____"} year old ${genderNoun} presented with ${autoGeneratedPainRegion} for the last ${duration || "_______"}. Pain was ${painOnset || "_______"} in onset, gradually progressive. The patient complained of pain to be more on ${aggravatingFactors || "_______"} and decreased on ${relievingFactors || "taking rest and medications"}. No history of weakness of limbs. No history of bladder or bowel involvement. No history of fever or constitutional symptoms prior to the onset.
+${presentingIllness}
 
 DIAGNOSIS
 ${formattedDiagnosis || "_______"}
@@ -1372,11 +1362,7 @@ Cage/Grafts:
 - Medtronics ADAPTIX
 
 COURSE OF ILLNESS
-`;
-            const formattedMobilizationDate = mobilizationDate ? new Date(mobilizationDate).toLocaleDateString('en-GB') : "the next day";
-            const drainStatement = drainCare ? "The drain was functional and surgical wound was healthy." : "The surgical wound was healthy.";
-            
-            summary += `${genderTitle} ${patientName || "_______"}, a ${age || "_____"} year old ${genderNoun} presented with ${autoGeneratedPainRegion} for ${duration || "_______"}. ${genderPronoun} was clinicoradiologically evaluated and diagnosed to have ${formattedDiagnosis || "_______"}. ${genderPronoun} was advised surgery in view of the long-standing disability. After admission, patient was evaluated by anesthetist and found fit for surgery. The patient and relatives were explained regarding the involved surgical risks and ${genderPronounLower} underwent the aforementioned surgery successfully. ${genderPronoun} was mobilized on ${formattedMobilizationDate} and was comfortable walking with assistance. ${drainStatement} ${genderPronoun} was planned for discharge with the following advice.
+${courseOfIllness}
 
 ## DISCHARGE ORDERS
 
