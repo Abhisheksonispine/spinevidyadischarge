@@ -738,6 +738,14 @@
                         <label><input type="checkbox" id="neuroDeficitCare"> Neurological Deficit Care</label>
                     </div>
                 </div>
+
+                <div class="form-group">
+                    <label for="sutureType">Skin Suture Type:</label>
+                    <select id="sutureType">
+                        <option value="Absorbable subcuticular sutures (monocryl) used for skin closure.">Absorbable Sutures</option>
+                        <option value="Skin was closed with non-absorbable sutures.">Non-absorbable Sutures</option>
+                    </select>
+                </div>
                 
                 <button class="generate-btn" onclick="generateSummary()">Generate Discharge Summary</button>
             </div>
@@ -875,8 +883,8 @@
                 "Kyphoplasty with Biopsy": "Percutaneous vertebral body biopsy, posterior vertebral body cement augmentation, indirect anterior decompression using balloon kyphoplasty"
             },
             carpal_tunnel: {
-                "Bilateral CTR": "Bilateral carpal tunnel release",
                 "Unilateral CTR": "Unilateral carpal tunnel release",
+                "Bilateral CTR": "Bilateral carpal tunnel release",
                 "Cubital Tunnel Release": "Cubital tunnel release with ulnar nerve decompression"
             },
             infection_tumor: {
@@ -905,7 +913,12 @@ Procedure:
 - An anterior cervical plate was fixed across the {levels} vertebrae with screws.
 - Final positioning was confirmed with fluoroscopy.
 - Hemostasis was achieved and the wound was closed in layers{drain}.
-- Absorbable subcuticular sutures (monocryl) used for skin closure.
+- {suture_type}
+
+Intraoperative Findings:
+- Surgical findings confirmed significant disc herniation and foraminal stenosis at {levels}.
+- Neural elements were adequately decompressed.
+- No intraoperative complications were noted.
 
 Outcome:
 - Patient tolerated the procedure well and was moving all four limbs at the end of surgery.`,
@@ -922,10 +935,15 @@ Procedure:
 - A midline incision was made over the {levels} interspace, confirmed with fluoroscopy.
 - A unilateral laminotomy and medial facetectomy were performed on the {side} side using a microscope.
 - The ligamentum flavum was resected to expose the dura and the traversing nerve root.
-- The nerve root was identified and gently retracted. The herniated disc fragment was identified and excised.
+- The nerve root was identified and gently retracted.
+- A large, extruded disc fragment was identified and excised.
 - The neural foramen and lateral recess were probed to ensure adequate decompression of the nerve root.
 - Hemostasis was achieved, and the wound was closed in layers{drain}.
-- Absorbable subcuticular sutures (monocryl) used for skin closure.
+- {suture_type}
+
+Intraoperative Findings:
+- A significant disc herniation compressing the nerve root was confirmed at {levels}.
+- No intraoperative complications were noted.
 
 Outcome:
 - Patient tolerated the procedure well with satisfactory neurological status at surgery completion.`,
@@ -948,11 +966,117 @@ Procedure:
 - Rods were contoured and secured to the pedicle screws. Compression was applied to restore lordosis.
 - Additional bone graft was placed in the posterolateral gutters.
 - Hemostasis was achieved, and the wound was closed in layers{drain}.
+- {suture_type}
+
+Intraoperative Findings:
+- Surgical findings confirmed severe spinal stenosis and degenerative disc disease at {levels}.
+- No intraoperative complications were noted.
 
 Outcome:
 - Patient tolerated the procedure well with satisfactory neurological status at surgery completion.`,
 
-            // A default/generic template for other procedures
+            "Unilateral carpal tunnel release": `
+### UNILATERAL CARPAL TUNNEL RELEASE ({side} side)
+
+Preparation:
+- Patient was positioned supine with the arm extended on a hand table.
+- A pneumatic tourniquet was applied to the upper arm.
+- The hand and forearm were prepared and draped in a sterile fashion.
+
+Procedure:
+- After exsanguination, the tourniquet was inflated.
+- A standard palmar incision was made over the carpal tunnel.
+- The palmar fascia was incised, and the transverse carpal ligament was identified.
+- The transverse carpal ligament was divided completely under direct visualization, taking care to protect the median nerve and its motor branch.
+- Complete release was confirmed by visualizing the expansion of the carpal tunnel.
+
+Median Nerve Assessment:
+- The median nerve was inspected and found to have mild flattening and hyperemia.
+- After release, the nerve was noted to be free from compression.
+
+Closure:
+- The tourniquet was deflated, and hemostasis was achieved.
+- {suture_type}
+- A sterile dressing and a light compression bandage were applied.
+
+Outcome:
+- Patient tolerated the procedure well. Good circulation and finger movement were confirmed post-operatively.`,
+
+            "Bilateral carpal tunnel release": `
+### BILATERAL CARPAL TUNNEL RELEASE
+
+Preparation:
+- Patient was positioned supine with arms extended on hand tables.
+- Pneumatic tourniquets were applied to both upper arms.
+- Both hands and forearms were prepared and draped in a sterile fashion.
+
+Procedure:
+- The procedure was performed sequentially, starting with the right side.
+- After exsanguination, the tourniquet was inflated. A standard palmar incision was made.
+- The transverse carpal ligament was identified and divided completely under direct visualization.
+- The median nerve was inspected and confirmed to be decompressed.
+- The tourniquet was deflated, hemostasis achieved, and the wound closed.
+- The same procedure was then repeated on the left side.
+
+Closure:
+- {suture_type}
+- Sterile dressings and light compression bandages were applied.
+
+Outcome:
+- Patient tolerated the procedure well. Good circulation and finger movement were confirmed bilaterally post-operatively.`,
+
+            "Percutaneous vertebral body biopsy and balloon kyphoplasty": `
+### PERCUTANEOUS KYPHOPLASTY AND BIOPSY AT {levels}
+
+Preparation:
+- Patient was positioned prone on a radiolucent table.
+- Conscious sedation and local anesthesia were administered.
+- The surgical site was prepared and draped in sterile fashion.
+
+Procedure:
+- Using C-arm fluoroscopy, a transpedicular approach to the {levels} vertebral body was performed.
+- An 11-gauge needle was inserted into the pedicle.
+- A core biopsy was taken and sent for histopathology.
+- A balloon was inserted and gradually inflated to restore vertebral height.
+- Satisfactory height restoration was achieved.
+- PMMA cement was injected slowly under continuous fluoroscopic monitoring.
+- Approximately 3-4 ml of cement was used. Good cement distribution was achieved.
+
+Intraoperative Findings:
+- Vertebral compression fracture was confirmed at {levels}.
+- No intraoperative complications or significant cement leakage noted.
+
+Closure:
+- Needles were removed after cement hardening.
+- Puncture wounds were dressed with adhesive bandages.
+
+Outcome:
+- Patient tolerated the procedure well and reported immediate pain relief.`,
+
+            "circumferential decompression and global instrumented fusion with scoliosis correction": `
+### POSTERIOR SPINAL FUSION WITH DEFORMITY CORRECTION AT {levels}
+
+Preparation:
+- After induction of general anesthesia, neuromonitoring leads were placed.
+- The patient was positioned prone on a radiolucent table.
+- The back was prepared and draped in a sterile fashion.
+
+Procedure:
+- A standard posterior midline incision was made over the planned fusion levels.
+- Subperiosteal dissection exposed the posterior elements from {start_level} to {end_level}.
+- Pedicle screws were placed at multiple levels under fluoroscopic guidance.
+- Deformity correction was achieved using rod derotation and cantilever bending maneuvers.
+- Ponte osteotomies were performed at the apex of the curve to improve flexibility.
+- The posterior elements were decorticated, and bone graft was applied to create a fusion bed.
+- Hemostasis was achieved, and the wound was closed in layers over drains.
+- {suture_type}
+
+Intraoperative Neuromonitoring (IONM):
+- The surgery was conducted under multimodal intraoperative neuromonitoring (SSEP, MEPs), with stable signals throughout the case.
+
+Outcome:
+- Patient tolerated the procedure well and was transferred to the recovery room in stable condition.`,
+
             "default": `
 ### {procedure}
 
@@ -968,7 +1092,7 @@ Procedure:
 - Instrumentation placed as indicated.
 - Hemostasis was achieved.
 - Surgical wound closed in layers{drain}.
-- Absorbable subcuticular sutures (monocryl) for skin closure.
+- {suture_type}
 
 Outcome:
 - Patient tolerated surgery well with satisfactory neurological status at surgery completion.`
@@ -1148,6 +1272,7 @@ Outcome:
             const mobilizationDate = document.getElementById('mobilizationDate').value;
             const followupDate = document.getElementById('followupDate').value;
             const spondyGrade = document.getElementById('spondyGrade').value;
+            const sutureType = document.getElementById('sutureType').value;
 
             // Get physical examination values
             const gaitFindings = document.getElementById('gaitFindings').value;
@@ -1546,7 +1671,14 @@ HOME PHYSIOTHERAPY:
             summary += `
 
 ### FOLLOW-UP
-- Review: Spine Care OPD for dressing with prior appointment 080-25023334
+- Review: Spine Care OPD for dressing with prior appointment 080-25023334`;
+
+            if (sutureType.includes('non-absorbable')) {
+                summary += `
+- Suture removal after 10-14 days`;
+            }
+
+            summary += `
 - Emergency contact: Spine Care Duty Mobile +91 98455 54542
 - Ambulance: MARS +91 80 2222 1111 or nearby hospital
 - Dr. Contact: SMS/WhatsApp only +91-9845210001 (no calls)
@@ -1567,8 +1699,9 @@ Report immediately: High-grade fever, surgical site soakage, drowsiness, irrelev
             let formattedOperativeNote = operativeNoteTemplate
                 .replace(/{levels}/g, surgicalLevels || '_______')
                 .replace(/{side}/g, painSide || '_______')
-                .replace(/{procedure}/g, procedurePerformed || 'Surgical intervention') // For default template
-                .replace(/{drain}/g, drainCare ? " over a drain" : ""); // For default template
+                .replace(/{procedure}/g, procedurePerformed || 'Surgical intervention')
+                .replace(/{drain}/g, drainCare ? " over a drain" : "")
+                .replace(/{suture_type}/g, sutureType);
 
             summary += formattedOperativeNote;
 
